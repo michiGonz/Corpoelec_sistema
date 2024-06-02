@@ -1,0 +1,90 @@
+<?php if (isset($lfmc['abastecimientos'])) { ?>
+    <?php if (count($lfmc['abastecimientos']) > 0) { ?>
+        <button id="descargarPDF" class="btn btn-success float-right">Descargar <i class="fa fa-download"></i></button>
+        <br>
+        <br>
+        <table class="table table-bordered table-hover dataTable dtr-inline" id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>Usaurio</th>
+                    <th>Fecha</th>
+                    <th>Sub-total</th>
+                    <th>IVA (16%)</th>
+                    <th>Total</th>
+                    <th class="text-center"><i class="fas fa-bars"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $total = 0;
+                foreach ($lfmc['abastecimientos'] as $clave => $abastecimiento) {
+                    $abastecimientos[$clave]['usuario'] = Obtener(T_USUARIO, $abastecimiento['usuario_id'])['nombre'];
+                    $abastecimientos[$clave]['fecha'] = $abastecimiento['fecha'];
+                    $abastecimientos[$clave]['sub_total'] = ObtenerPrecio($abastecimiento['total'] - (($abastecimiento['total'] * 16) / 100));
+                    $abastecimientos[$clave]['iva'] = ObtenerPrecio(($abastecimiento['total'] * 16) / 100);
+                    $abastecimientos[$clave]['total'] = ObtenerPrecio($abastecimiento['total']); ?>
+                    <tr id="<?php echo $abastecimiento['id'] ?>">
+                        <td>
+                            <?php echo $abastecimientos[$clave]['usuario'] ?>
+                        </td>
+                        <td>
+                            <?php echo $abastecimientos[$clave]['fecha'] ?>
+                        </td>
+                        <td>
+                            <?php echo $abastecimientos[$clave]['sub_total'] ?>
+                        </td>
+                        <td>
+                            <?php echo $abastecimientos[$clave]['iva'] ?>
+                        </td>
+                        <td>
+                            <?php echo $abastecimientos[$clave]['total'] ?>
+                        </td>
+                        <td class="text-center">
+                            <a href="<?php echo CargarEnlace("abastecimientos/ver/{$abastecimiento['id']}") ?>" class="btn btn-info" title="Ver"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                <?php
+                    $total += $abastecimiento['total'];
+                } ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td><b><?php echo $sub_total = ObtenerPrecio($total - (($total * 16) / 100)) ?></b></td>
+                    <td><b><?php echo $iva = ObtenerPrecio(($total * 16) / 100) ?></b></td>
+                    <td><b><?php echo $total = ObtenerPrecio($total) ?></b></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        <script>
+            $('#tablaReporte').DataTable({
+                language: TablaIdioma
+            });
+
+            <?php echo "var abastecimientos = JSON.parse('" . str_replace("'", "\\'", json_encode($abastecimientos)) . "');"; ?>
+
+            $("#descargarPDF").on('click', function() {
+                var doc = new jspdf.jsPDF()
+                doc.text('Reporte de abastecimientos desde: <?php echo $_POST['f_inicio'] ?> hasta: <?php echo $_POST['f_final'] ?>', 15, 10);
+
+                var body = [];
+                abastecimientos.forEach(async (abastecimiento) => {
+                    body.push([abastecimiento.usuario, abastecimiento.fecha, abastecimiento.sub_total, abastecimiento.iva, abastecimiento.total]);
+                });
+                doc.autoTable({
+                    head: [
+                        ['Usuario', 'Fecha', 'Sub-total', 'Iva (16%)', 'Total']
+                    ],
+                    body: body,
+                    foot: [
+                        ['', '', '', '<?php echo $sub_total; ?>', '<?php echo $iva; ?>', '<?php echo $total; ?>']
+                    ]
+                })
+                doc.save('corpoelec-reporte-de-abastecimientos-desde-<?php echo $_POST['f_inicio'] ?>-hasta-<?php echo $_POST['f_final'] ?>.pdf')
+            });
+        </script>
+    <?php } else { ?>
+        <div>Sin datos</div>
+    <?php } ?>
+<?php } ?>

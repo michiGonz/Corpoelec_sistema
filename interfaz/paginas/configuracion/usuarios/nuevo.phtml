@@ -1,0 +1,90 @@
+<?php if ($_SESSION['usuario']['tipo'] == "administrador") { ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                Agregar usuario
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="agregar" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="">Nombre de usuario</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@</span>
+                            </div>
+                            <input type="text" name="usuario" class="form-control" placeholder="Nombre de usuario" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="">Nombre</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Tipo</label>
+                        <select class="form-control" style="width: 100%;" name="tipo" required>
+                            <option value="administrador">Administrador</option>
+                            
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="">Contraseña <small>default: corpoelec</small></label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            </div>
+                            <input type="text" name="clave" class="form-control" placeholder="Contraseña">
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="id" value="<?php echo $usuario['id'] ?>">
+                <div class="col-12 text-center">
+                    <button class="btn btn-success" id="btn_add" type="submit">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            var agregar = $("#agregar");
+            agregar.on("submit", function (e) {
+                e.preventDefault();
+                var formData = new FormData(document.getElementById("agregar"));
+                $.ajax({
+                    url: "<?php echo CargarEnlace('nucleo/ajax/usuario/agregar.php') ?>",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function (dato) {
+                        $("#btn_add").html('Agregando...');
+                        agregar.find('button[type="submit"]').attr('disabled', 'true');
+                    }
+                }).done(function (dato) {
+                    if (dato.estado == 200) {
+                        toastr.success(dato.mensaje);
+                        setTimeout(function () {
+                            window.location.href = '<?php echo CargarEnlace('configuracion/usuarios'); ?>';
+                        }, 1000);
+                    } else {
+                        toastr.error(dato.mensaje);
+                    }
+                }).fail(function (dato) {
+                    toastr.error('😅 Algo salio mal');
+                });
+                $("#btn_add").html('Agregar');
+                agregar.find('button[type="submit"]').removeAttr('disabled');
+            });
+        });
+    </script>
+<?php } else {
+    echo CargarPagina('403/contenido');
+} ?>

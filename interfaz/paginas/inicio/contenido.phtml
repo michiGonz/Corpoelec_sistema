@@ -1,0 +1,11 @@
+
+<?php if ($_SESSION['usuario'] == null) {?>
+    <!-- Inicio
+    <br>
+    <a href="iniciar-sesion">Iniciar Sesión</a>
+    <br>
+    <a href="registrarse">Registrarte</a> -->
+    <?php echo CargarPagina('iniciar-sesion/contenido');?>
+<?php }else{
+    echo CargarPagina('dashboard/contenido');
+}?>

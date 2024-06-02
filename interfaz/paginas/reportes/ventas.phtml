@@ -1,0 +1,100 @@
+<?php if (isset($lfmc['ventas'])) { ?>
+    <?php if (count($lfmc['ventas']) > 0) { ?>
+        <button id="descargarPDF" class="btn btn-success float-right">Descargar <i class="fa fa-download"></i></button>
+        <br>
+        <br>
+        <table class="table table-bordered table-hover dataTable dtr-inline" id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>Usaurio</th>
+                    <th>Método de pago</th>
+                    <th>Fecha</th>
+                    <th>Sub-total</th>
+                    <th>IVA (16%)</th>
+                    <th>Total</th>
+                    <th class="text-center"><i class="fas fa-bars"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $total = 0;
+                foreach ($lfmc['ventas'] as $clave => $venta) {
+                    $ventas[$clave]['usuario'] = Obtener(T_USUARIO, $venta['usuario_id'])['nombre'];
+                    $ventas[$clave]['metodo_pago'] = ucfirst(str_replace('_', ' ', $venta['metodo_pago']));
+                    $ventas[$clave]['fecha'] = $venta['fecha'];
+                    $ventas[$clave]['sub_total'] = ObtenerPrecio($venta['total'] - (($venta['total'] * 16) / 100));
+                    $ventas[$clave]['iva'] = ObtenerPrecio(($venta['total'] * 16) / 100);
+                    $ventas[$clave]['total'] = ObtenerPrecio($venta['total']);
+
+                ?>
+                    <tr id="<?php echo $venta['id'] ?>">
+                        <td>
+                            <?php echo $ventas[$clave]['usuario'] ?>
+                        </td>
+                        <td>
+                            <?php echo $ventas[$clave]['metodo_pago'] ?>
+                        </td>
+                        <td>
+                            <?php echo $ventas[$clave]['fecha'] ?>
+                        </td>
+                        <td>
+                            <?php echo $ventas[$clave]['sub_total']; ?>
+                        </td>
+                        <td>
+                            <?php echo $ventas[$clave]['iva'] ?>
+                        </td>
+                        <td>
+                            <?php echo $ventas[$clave]['total'] ?>
+                        </td>
+                        <td class="text-center">
+                            <a href="<?php echo CargarEnlace("ventas/ver/{$venta['id']}") ?>" class="btn btn-info" title="Ver"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                <?php
+                    $total += $venta['total'];
+                } ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><b><?php echo $sub_total = ObtenerPrecio($total - (($total * 16) / 100)) ?></b></td>
+                    <td><b><?php echo $iva = ObtenerPrecio(($total * 16) / 100) ?></b></td>
+                    <td><b><?php echo $total = ObtenerPrecio($total) ?></b></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <script>
+            $('#tablaReporte').DataTable({
+                language: TablaIdioma
+            });
+
+            <?php echo "var ventas = JSON.parse('" . str_replace("'", "\\'", json_encode($ventas)) . "');"; ?>
+
+            $("#descargarPDF").on('click', function() {
+                var doc = new jspdf.jsPDF()
+                doc.text('Reporte de ventas desde: <?php echo $_POST['f_inicio'] ?> hasta: <?php echo $_POST['f_final'] ?>', 15, 10);
+
+                var body = [];
+                ventas.forEach(async (venta) => {
+                    body.push([venta.usuario, venta.metodo_pago, venta.fecha, venta.sub_total, venta.iva, venta.total]);
+                });
+                doc.autoTable({
+                    head: [
+                        ['Usuario', 'Método de pago', 'Fecha', 'Sub-total', 'Iva (16%)', 'Total']
+                    ],
+                    body: body,
+                    foot: [
+                        ['', '', '', '<?php echo $sub_total; ?>', '<?php echo $iva; ?>', '<?php echo $total; ?>']
+                    ]
+                })
+                doc.save('corpoelec-reporte-de-ventas-desde-<?php echo $_POST['f_inicio'] ?>-hasta-<?php echo $_POST['f_final'] ?>.pdf')
+            });
+        </script>
+
+    <?php } else { ?>
+        <div>Sin datos</div>
+    <?php } ?>
+<?php } ?>

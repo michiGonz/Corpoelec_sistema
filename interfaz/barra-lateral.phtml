@@ -1,0 +1,70 @@
+<aside class="main-sidebar main-sidebar-custom sidebar-light elevation-4">
+    <a href="<?php echo CargarEnlace('') ?>" class="brand-link">
+        <img src="<?php echo CargarEnlace('interfaz/img/logo.png') ?>" alt="Logo" class="brand-image" style="opacity: .8">
+        <span class="brand-text font-weight-light">corpoelec</span>
+    </a>
+
+    <div class="sidebar">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+                <li class="nav-item">
+                    <a href="<?php echo CargarEnlace('inicio') ?>" class="nav-link <?php echo ($lfmc['link'][0] == 'inicio') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-home"></i>
+                        <p>Inicio</p>
+                    </a>
+                </li>
+               
+                
+                <li class="nav-item <?php echo ($lfmc['link'][0] == 'catalogos') ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-pen nav-icon"></i>
+                        <p> Registro <i class="right fas fa-angle-left"></i> </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?php echo CargarEnlace('catalogos/productos') ?>" class="nav-link <?php echo ($lfmc['link'][1] == 'productos') ? 'active' : '' ?>">
+                                <i class="fas fa-laptop nav-icon"></i>
+                                <p>Productos</p>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a href="<?php echo CargarEnlace('catalogos/marcas') ?>" class="nav-link <?php echo ($lfmc['link'][1] == 'marcas') ? 'active' : '' ?>">
+                                <i class="fas fa-registered nav-icon"></i>
+                                <p>Marcas</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+               
+                <li class="nav-item <?php echo ($lfmc['link'][0] == 'configuracion') ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-cogs nav-icon"></i>
+                        <p> Configuración <i class="right fas fa-angle-left"></i> </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?php echo CargarEnlace('configuracion') ?>" class="nav-link <?php echo ($lfmc['link'][0] == 'configuracion' && $lfmc['link'][1] != 'usuarios') ? 'active' : '' ?>">
+                                <i class="fa fa-database nav-icon"></i>
+                                <p>Base de datos</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?php echo CargarEnlace('configuracion/usuarios') ?>" class="nav-link <?php echo ($lfmc['link'][1] == 'usuarios') ? 'active' : '' ?>">
+                                <i class="fas fa-users nav-icon"></i>
+                                <p>Usuarios</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- <li class="nav-header">Menu ejemplo</li> -->
+            </ul>
+        </nav>
+    </div>
+
+    <!-- <div class="sidebar-custom">
+        <a href="#" class="btn btn-link"><i class="fas fa-cogs"></i></a>
+        <a href="#" class="btn btn-secondary hide-on-collapse pos-right">Help</a>
+    </div> -->
+</aside>

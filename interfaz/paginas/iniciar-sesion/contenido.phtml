@@ -1,0 +1,78 @@
+<div class="login-box">
+    <div class="card card-outline card-primary">
+        <div class="card-header text-center">
+            <img src="<?php echo CargarEnlace('interfaz/img/logo.png') ?>" alt="Logo" width="250" style="margin-left: 25px;">
+        </div>
+        <div class="card-body">
+
+            <form id="iniciar-sesion" enctype="multipart/form-data" method="post">
+                <div class="input-group mb-3">
+                    <input class="form-control" type="text" placeholder="Usuario" name="usuario">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control" type="password" placeholder="Contraseña" name="clave">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="msg"></div>
+                <button class="btn btn-primary btn-block" id="btn_login" type="submit">Iniciar sesión</button>
+            </form>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+</div>
+<style>
+    .login-page {
+        background-image: url('<?php echo CargarEnlace('interfaz/img/login.jpeg') ?>');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+</style>
+
+<script>
+    $(function() {
+        var iniciar_sesion = $("#iniciar-sesion");
+        iniciar_sesion.on("submit", function(e) {
+            e.preventDefault();
+            var formData = new FormData(document.getElementById("iniciar-sesion"));
+            $.ajax({
+                url: "<?php echo CargarEnlace("nucleo/ajax/usuario/iniciar-sesion.php") ?>",
+                type: "POST",
+                dataType: "json",
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function(dato) {
+                    $(".msg").html('Cargando...');
+                    iniciar_sesion.find('button[type="submit"]').attr('disabled', 'true');
+                }
+            }).done(function(dato) {
+                if (dato.estado == 200) {
+                    $(".msg").removeClass('alert-danger').addClass('alert alert-success alert-dismissible').html(dato.mensaje);
+                    setTimeout(function() {
+                        window.location.href = dato.url;
+                    }, 2000);
+                } else {
+                    $(".msg").removeClass('alert-success').addClass('alert alert-danger alert-dismissible').html(dato.mensaje);
+                }
+            }).fail(function(dato) {
+                $(".msg").html('😅 Algo salio mal');
+            });
+            iniciar_sesion.find('button[type="submit"]').removeAttr('disabled');
+            setTimeout(function() {
+                $(".msg").removeClass('alert alert-success alert-danger alert-dismissible').html('')
+            }, 5000);
+        });
+    });
+</script>

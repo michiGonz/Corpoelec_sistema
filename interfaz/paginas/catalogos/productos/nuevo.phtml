@@ -1,0 +1,109 @@
+<?php if ($_SESSION['usuario']['tipo'] == "administrador") { ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                Agregar producto
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="agregar" enctype="multipart/form-data">
+                <div class="row">
+
+                    <div class="form-group col-md-6">
+                        <label for="fecha">Fecha de entrega</label>
+                        <input type="date" name="fecha" class="form-control" placeholder="Fecha de Entrega" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="marca_id">Marca</label>
+                        <select class="custom-select form-control-border border-width-2" name="marca_id">
+                            <option value="" selected>- Seleccione -</option>
+                            <?php $marcas = ObtenerTodos(T_marca);
+                            foreach ($marcas as $marca) { ?>
+                                <option value="<?php echo $marca['id'] ?>">
+                                    <?php echo $marca['nombre'] ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="nombre">Nombre del equipo</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Nombre del equipo" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" name="modelo" class="form-control" placeholder="Modelo" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="serial">Serial</label>
+                        <input type="text" name="serial" class="form-control" placeholder="Serial" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="departamento">Departamento</label>
+                        <input class="form-control" rows="1" name="departamento" placeholder="Departamento" require>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="trabajador">Nombre del Trabajador</label>
+                        <input type="text" name="trabajador" class="form-control" placeholder="Nombre del Trabajador" required>
+                    </div>
+                </div>
+                <div class="col-12 text-center">
+                    <button class="btn btn-success" id="btn_add" type="submit">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var sub_categorias = JSON.parse('<?php echo str_replace("'", "\\'", json_encode(ObtenerTodos(T_SUB_CATEGORIA))) ?>');
+            $('#categoria_id').change(function() {
+                $('#sub_categoria_id').html(`<option value="" selected>- Seleccione -</option>`);
+                sub_categorias.forEach(sub_categoria => {
+                    if ($('#categoria_id').val() == sub_categoria.categoria_id) {
+                        $('#sub_categoria_id').append(`<option value="${sub_categoria.id}">${sub_categoria.nombre}</option>`);
+                    }
+                });
+            });
+        });
+        $(function() {
+            var agregar = $("#agregar");
+            agregar.on("submit", function(e) {
+                e.preventDefault();
+                var formData = new FormData(document.getElementById("agregar"));
+                $.ajax({
+                    url: "<?php echo CargarEnlace('nucleo/ajax/catalogos/producto-agregar.php') ?>",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(dato) {
+                        $("#btn_add").html('Agregando...');
+                        agregar.find('button[type="submit"]').attr('disabled', 'true');
+                    }
+                }).done(function(dato) {
+                    if (dato.estado == 200) {
+                        toastr.success(dato.mensaje);
+                        setTimeout(function() {
+                            window.location.href = '<?php echo CargarEnlace('catalogos/productos'); ?>';
+                        }, 1000);
+                    } else {
+                        toastr.error(dato.mensaje);
+                    }
+                }).fail(function(dato) {
+                    toastr.error('😅 Algo salio mal');
+                });
+                $("#btn_add").html('Agregar');
+                agregar.find('button[type="submit"]').removeAttr('disabled');
+            });
+        });
+    </script>
+<?php } else {
+    echo CargarPagina('403/contenido');
+} ?>

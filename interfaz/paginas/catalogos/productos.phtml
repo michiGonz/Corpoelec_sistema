@@ -1,0 +1,129 @@
+<?php $productos = ObtenerProductos(); ?>
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            Productos
+        </h2>
+        <?php if ($_SESSION['usuario']['tipo'] == 'administrador') { ?>
+            <div class="card-tools">
+                <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                        <a class="btn btn-success" href="<?php echo CargarEnlace('catalogos/productos/nuevo') ?>">
+                            <i class="fas fa-plus-circle"></i> Agregar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        <?php } ?>
+    </div>
+    <div class="card-body">
+        <?php if ($productos) { ?>
+            <div class="msg" style="margin:-10px 15px;"></div>
+            <table class="table table-bordered table-hover dataTable dtr-inline" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre del equipo</th>
+                        <th>marca</th>
+                        <th>Modelo</th>
+                        <th>Serial</th>
+                        <th>Trabajador</th>
+                        <th>Departamento</th>
+                        <th class="text-center"><i class="fas fa-bars"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($productos as $producto) { ?>
+                        <tr id="<?php echo $producto['id'] ?>">
+                            <td>
+                                <?php echo TextoCorto($producto['id'], 70) ?>
+                            </td>
+                            <td>
+                                <?php echo TextoCorto($producto['nombre'], 70) ?>
+                            </td>
+                            <td>
+                                <?php echo TextoCorto($producto['marca']['nombre'], 70) ?>
+                            </td>
+                            <td>
+                                <?php echo TextoCorto($producto['modelo'], 70) ?>
+                            </td>
+
+                            <td>
+                                <?php echo TextoCorto($producto['serial'], 70) ?>
+                            </td>
+                            <td>
+                                <?php echo TextoCorto($producto['trabajador'], 70) ?>
+                            </td>
+                            <td>
+                                <?php echo TextoCorto($producto['departamento'], 70) ?>
+                            </td>
+
+                            <td class="text-center">
+                                <?php if ($_SESSION['usuario']['tipo'] == 'administrador') { ?>
+                                    <a class="btn btn-info" href="<?php echo CargarEnlace('catalogos/productos/ver/' . $producto['id']) ?>" title="Ver"><i class="fas fa-eye"></i></a>
+                                    <a class="btn btn-warning" href="<?php echo CargarEnlace('catalogos/productos/editar/' . $producto['id']) ?>" title="Editar"><i class="fas fa-edit"></i></a>
+                                    <a id="btn<?php echo $producto['id'] ?>" class="btn btn-danger" onclick="eliminar('<?php echo $producto['id'] ?>','<?php echo $producto['nombre'] ?>')" title="Anular"><i class="fas fa-trash-alt"></i></a>
+                                <?php } ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        <?php } else { ?>
+            <div>Sin datos</div>
+        <?php } ?>
+    </div>
+</div>
+<script>
+    $('#tablaProductos').DataTable({
+        language: TablaIdioma
+    });
+
+    function eliminar(id, nombre) {
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: "Seguro desea anular la producto: " + nombre,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'SI'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "<?php echo CargarEnlace('nucleo/ajax/catalogos/producto-eliminar.php') ?>?id=" + id,
+                    type: "GET",
+                    dataType: "json",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(dato) {
+                        $("#btn" + id).html('Eliminando');
+                    }
+                }).done(function(dato) {
+                    if (dato.estado == 200) {
+                        $("#" + id).remove();
+                        Swal.fire(
+                            'Eliminado!',
+                            'Se ha eliminado con éxito.',
+                            'success'
+                        )
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            dato.mensaje,
+                            'error'
+                        )
+                    }
+                }).fail(function(dato) {
+                    $(".msg").html('');
+                    Swal.fire(
+                        'Error',
+                        '😅 Algo salio mal',
+                        'error'
+                    )
+                });
+            }
+        })
+    }
+</script>

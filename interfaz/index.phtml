@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="es">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sistema |
+        <?php echo $lfmc['pagina']; ?>
+    </title>
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+    <meta name="title" content="<?php echo $lfmc['pagina']; ?>">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="<?php echo CargarEnlace('interfaz/img/logo.png'); ?>">
+    <link rel="icon" type="image/png" href="<?php echo CargarEnlace('interfaz/img/logo.png'); ?>">
+    <meta name="theme-color" content="<?php echo $lfmc['config']['cabecera_color']; ?>" />
+
+    <script src="<?php echo CargarEnlace('nucleo/framework/jquery-3.6.0.js'); ?>"></script>
+
+    <!-- Datatables -->
+    <link href="<?php echo CargarEnlace('interfaz/bibliotecas/datatables/datatables.min.css'); ?>" rel="stylesheet">
+    <script src="<?php echo CargarEnlace('interfaz/bibliotecas/datatables/datatables.min.js'); ?>"></script>
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="<?php echo CargarEnlace('interfaz/bibliotecas/sweetalert2/sweetalert2.min.css'); ?>">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="<?php echo CargarEnlace('interfaz/bibliotecas/toastr/toastr.min.css'); ?>">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="<?php echo CargarEnlace('interfaz/bibliotecas/fontawesome-free/css/all.min.css'); ?>">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="<?php echo CargarEnlace('interfaz/css/adminlte.min.css'); ?>">
+    <script>
+        function ObtenerPrecio(precio = "", simbolo = 'Bs') {
+            return Number(precio).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " " + simbolo;
+        }
+
+        let TablaIdioma = {
+            decimal: "",
+            emptyTable: "No hay datos disponibles en la tabla",
+            info: "Mostrando  _START_ a _END_ de _TOTAL_ entradas ",
+            infoEmpty: "No hay registros disponibles ",
+            infoFiltered: "(filtered from _MAX_ total entradas )",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ entradas ",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No ha coincidencias",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            },
+            aria: {
+                sortAscending: "Activar para ordenar la columna ascendente",
+                sortDescending: "Activar para ordenar la columna descendente"
+            }
+        };
+    </script>
+    <style>
+        [class*=sidebar-dark-] {
+            background-color: #000064;
+        }
+    </style>
+</head>
+
+<body class=" <?php echo ($_SESSION['usuario'] != null) ? 'hold-transition sidebar-mini layout-fixed' : 'hold-transition login-page' ?>">
+    <?php if ($_SESSION['usuario'] != null) { ?>
+        <div class="wrapper">
+            <?php
+            include_once "cabecera.phtml";
+            include_once "barra-lateral.phtml"; ?>
+            <div class="content-wrapper">
+                <section class="content" style="padding-top: 10px;">
+                    <div class="container-fluid">
+                    <?php }
+                echo $lfmc['contenido'];
+                if ($_SESSION['usuario'] != null) { ?>
+                    </div>
+                </section>
+            </div>
+        </div>
+    <?php } ?>
+
+    <script>
+        function CerrarSesion() {
+            $.ajax({
+                url: "<?php echo CargarEnlace("nucleo/ajax/usuario/cerrar-sesion.php"); ?>",
+            }).done(function(dato) {
+                window.location.href = "<?php echo CargarEnlace('inicio') ?>";
+            }).fail(function(dato) {});
+        }
+    </script>
+
+    <!-- JSPDF -->
+    <script src="<?php echo CargarEnlace('interfaz/bibliotecas/jspdf/jspdf.umd.min.js'); ?>"></script>
+    <script src="<?php echo CargarEnlace('interfaz/bibliotecas/jspdf/jspdf.plugin.autotable.js'); ?>"></script>
+    <!-- SweetAlert2 -->
+    <script src="<?php echo CargarEnlace('interfaz/bibliotecas/sweetalert2/sweetalert2.min.js') ?>"></script>
+    <!-- Toastr -->
+    <script src="<?php echo CargarEnlace('interfaz/bibliotecas/toastr/toastr.min.js') ?>"></script>
+    <!-- AdminLTE App -->
+    <script src="<?php echo CargarEnlace('interfaz/js/adminlte.js') ?>"></script>
+</body>
+
+</html>

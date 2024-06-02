@@ -1,0 +1,168 @@
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Reportes</h2>
+    </div>
+    <div class="card-body">
+        <form class="row" id="generar_reporte" method="POST" enctype="multipart/form-data">
+            <div class="form-group col-md-4">
+                <label for="tipo">Tipo de reporte</label>
+                <select class="custom-select form-control-border border-width-2" name="tipo" id="tipo" required>
+                    <option value="" selected>- Seleccione -</option>
+                    <?php if ($_SESSION['usuario']['tipo'] == "administrador" || $_SESSION['usuario']['tipo'] == "vendedor") { ?>
+                    <option value="ventas">Ventas</option>
+                    <?php } if ($_SESSION['usuario']['tipo'] == "administrador" || $_SESSION['usuario']['tipo'] == "almacenista") { ?>
+                    <option value="abastecimientos">Abastecimientos</option>
+                    <?php }?>
+                    <option value="productos">Productos</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="">Fecha inicio </label>
+                <input type="date" name="f_inicio" value="<?php echo date('Y-m') . '-01' ?>" class="form-control" placeholder="Fecha inicio" required>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="">Fecha final</label>
+                <input type="date" name="f_final" value="<?php echo date('Y-m-d') ?>" class="form-control" placeholder="Fecha final" required>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">Método de pago</label>
+                <select class="custom-select form-control-border border-width-2" name="metodo_pago" id="metodo_pago">
+                    <option value="" selected>- Todos -</option>
+                    <option value="punto_de_venta">Punto de venta</option>
+                    <option value="pago_movil">Pago movil</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="efectivo_divisa">Efectivo (Divisa)</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">Tipo de movimiento</label>
+                <select class="custom-select form-control-border border-width-2" name="tipo_movimiento" id="tipo_movimiento">
+                    <option value="todo" selected>- Todos -</option>
+                    <option value="venta">Ventas</option>
+                    <option value="abastecimiento">Abastecimientos</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">Usuario</label>
+                <select class="custom-select form-control-border border-width-2" name="usuario_id" id="usuario_id">
+                    <option value="" selected>- Todos -</option>
+                    <?php foreach (ObtenerTodos(T_USUARIO) as $valor) { ?>
+                        <option value="<?php echo $valor['id'] ?>"><?php echo $valor['nombre'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">Producto</label>
+                <select class="custom-select form-control-border border-width-2" name="producto_id" id="producto_id">
+                    <option value="" selected>- Todos -</option>
+                    <?php foreach (ObtenerTodos(T_PRODUCTO) as $valor) { ?>
+                        <option value="<?php echo $valor['id'] ?>"><?php echo $valor['nombre'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">Categoría</label>
+                <select class="custom-select form-control-border border-width-2" name="categoria_id" id="categoria_id">
+                    <option value="" selected>- Todas -</option>
+                    <?php foreach (ObtenerTodos(T_CATEGORIA) as $valor) { ?>
+                        <option value="<?php echo $valor['id'] ?>"><?php echo $valor['nombre'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">Sub-categoría</label>
+                <select class="custom-select form-control-border border-width-2" name="sub_categoria_id" id="sub_categoria_id">
+                    <option value="" selected>- Todas -</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4" style="display: none;">
+                <label for="tipo">marca</label>
+                <select class="custom-select form-control-border border-width-2" name="marca" id="marca">
+                    <option value="" selected>- Todas -</option>
+                    <?php foreach (ObtenerTodos(T_marca) as $valor) { ?>
+                        <option value="<?php echo $valor['id'] ?>"><?php echo $valor['nombre'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="col-md-12 text-center">
+                <button class="btn btn-success" id="btn_generar" type="submit">Generar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="reporte_html"></div>
+
+<script>
+    $(document).ready(function() {
+        $('#tipo').change(function() {
+            $('#producto_id').parent().css('display', 'none');
+            $('#tipo_movimiento').parent().css('display', 'none');
+            $('#metodo_pago').parent().css('display', 'none');
+            $('#categoria_id').parent().css('display', 'none');
+            $('#sub_categoria_id').parent().css('display', 'none');
+            $('#marca').parent().css('display', 'none');
+            $('#usuario_id').parent().css('display', 'none');
+            let tipo = $('#tipo').val();
+            if (tipo == 'ventas') {
+                $('#metodo_pago').parent().css('display', 'block');
+            }
+            if (tipo == 'ventas' || tipo == 'abastecimientos') {
+                $('#producto_id').parent().css('display', 'block');
+                $('#categoria_id').parent().css('display', 'block');
+                $('#sub_categoria_id').parent().css('display', 'block');
+                $('#marca').parent().css('display', 'block');
+                $('#usuario_id').parent().css('display', 'block');
+            } else if (tipo == 'productos') {
+                $('#producto_id').parent().css('display', 'block');
+                $('#tipo_movimiento').parent().css('display', 'block');
+                $('#categoria_id').parent().css('display', 'block');
+                $('#sub_categoria_id').parent().css('display', 'block');
+                $('#marca').parent().css('display', 'block');
+            } else if (tipo == '') {
+                $('#reporte_html').html('');
+            }
+        });
+        var sub_categorias = JSON.parse('<?php echo str_replace("'", "\\'", json_encode(ObtenerTodos(T_SUB_CATEGORIA))) ?>');
+        $('#categoria_id').change(function() {
+            $('#sub_categoria_id').html(`<option value="" selected>- Todas -</option>`);
+            sub_categorias.forEach(sub_categoria => {
+                if ($('#categoria_id').val() == sub_categoria.categoria_id) {
+                    $('#sub_categoria_id').append(`<option value="${sub_categoria.id}">${sub_categoria.nombre}</option>`);
+                }
+            });
+        });
+
+
+        $(function() {
+            var generar_reporte = $("#generar_reporte");
+            generar_reporte.on("submit", function(e) {
+                e.preventDefault();
+                var formData = new FormData(document.getElementById("generar_reporte"));
+                let tipo = $('#tipo').val();
+                $.ajax({
+                    url: "<?php echo CargarEnlace('nucleo/ajax/reportes') ?>/" + tipo + ".php",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(dato) {
+                        $("#btn_generar").html('<i class="fas fa-spinner fa-spin"></i>').attr('disabled', 'true');
+                        $('#reporte_html').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-lg"></i></div>');
+                    }
+                }).done(function(dato) {
+                    if (dato.estado == 200) {
+                        toastr.success(dato.mensaje);
+                        $('#reporte_html').html('<div class="card"><div class="card-body">' + dato.html + '</div></div>');
+                    } else {
+                        toastr.error(dato.mensaje);
+                        $('#reporte_html').html('');
+                    }
+                });
+                $("#btn_generar").html('Generar').removeAttr('disabled');
+            });
+        });
+    });
+</script>

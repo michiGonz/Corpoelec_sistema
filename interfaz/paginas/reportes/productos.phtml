@@ -1,0 +1,87 @@
+<?php if (isset($lfmc['productos'])) { ?>
+    <?php if (count($lfmc['productos']) > 0) { ?>
+        <button id="descargarPDF" class="btn btn-success float-right">Descargar <i class="fa fa-download"></i></button>
+        <br>
+        <br>
+        <table class="table table-bordered table-hover dataTable dtr-inline" id="tablaReporte">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Producto</th>
+                    <th>Fecha</th>
+                    <th>Precio compra</th>
+                    <th>Precio venta</th>
+                    <th>Cntd</th>
+                    <th>Total</th>
+                    <th class="text-center"><i class="fas fa-bars"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                foreach ($lfmc['productos'] as $clave => $movimiento) {
+                    $movimientos[$clave]['tipo'] = ucfirst($movimiento['tipo']);
+                    $movimientos[$clave]['producto'] = Obtener(T_PRODUCTO, $movimiento['producto_id'])['nombre'];
+                    $movimientos[$clave]['fecha'] = $movimiento['fecha'];
+                    $movimientos[$clave]['precio_compra'] = ObtenerPrecio($movimiento['precio_compra']);
+                    $movimientos[$clave]['precio_venta'] = ObtenerPrecio($movimiento['precio_venta']);
+                    $movimientos[$clave]['cntd'] = $movimiento['cntd'];
+                    $movimientos[$clave]['total'] = ObtenerPrecio((($movimiento['tipo'] == 'abastecimiento') ? ($movimiento['precio_compra'] * $movimiento['cntd']) : ($movimiento['precio_venta'] * $movimiento['cntd'])));
+                ?>
+                    <tr id="<?php echo $movimiento['id'] ?>">
+                        <td>
+                            <?php echo $movimientos[$clave]['tipo'] ?>
+                        </td>
+                        <td>
+                            <?php echo $movimientos[$clave]['producto'] ?>
+                        </td>
+                        <td>
+                            <?php echo $movimientos[$clave]['fecha'] ?>
+                        </td>
+                        <td>
+                            <?php echo $movimientos[$clave]['precio_compra'] ?>
+                        </td>
+                        <td>
+                            <?php echo $movimientos[$clave]['precio_venta'] ?>
+                        </td>
+                        <td>
+                            <?php echo $movimientos[$clave]['cntd'] ?>
+                        </td>
+                        <td>
+                            <?php echo $movimientos[$clave]['total'] ?>
+                        </td>
+                        <td class="text-center">
+                            <a href="<?php echo CargarEnlace("{$movimiento['tipo']}s/ver/{$movimiento['movimiento_id']}") ?>" class="btn btn-info" title="Ver"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                <?php
+                } ?>
+            </tbody>
+        </table>
+        <script>
+            $('#tablaReporte').DataTable({
+                language: TablaIdioma
+            });
+
+            <?php echo "var movimientos = JSON.parse('" . str_replace("'", "\\'", json_encode($movimientos)) . "');"; ?>
+
+            $("#descargarPDF").on('click', function() {
+                var doc = new jspdf.jsPDF()
+                doc.text('Reporte de productos desde: <?php echo $_POST['f_inicio'] ?> hasta: <?php echo $_POST['f_final'] ?>', 15, 10);
+
+                var body = [];
+                movimientos.forEach(async (movimiento) => {
+                    body.push([movimiento.tipo, movimiento.producto, movimiento.fecha, movimiento.precio_compra, movimiento.precio_venta, movimiento.cntd, movimiento.total]);
+                });
+                doc.autoTable({
+                    head: [
+                        ['Tipo', 'Producto', 'Fecha', 'Precio compra', 'Precio venta', 'Cntd', 'Total']
+                    ],
+                    body: body
+                })
+                doc.save('corpoelec-reporte-de-productos-desde-<?php echo $_POST['f_inicio'] ?>-hasta-<?php echo $_POST['f_final'] ?>.pdf')
+            });
+        </script>
+    <?php } else { ?>
+        <div>Sin datos</div>
+    <?php } ?>
+<?php } ?>

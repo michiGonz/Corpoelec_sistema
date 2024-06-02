@@ -1,0 +1,43 @@
+<?php $producto = ObtenerProducto($lfmc['link'][3]); ?>
+
+<div class="row">
+    <div class="col-12">
+        <div class="invoice p-3 mb-3">
+            <div class="row">
+                <div class="col-12">
+                    <h1>
+                        <b>Registro de Equipo</b>
+
+                    </h1>
+                </div>
+            </div>
+            <br>
+            <div class="row invoice-primary">
+                <div class="col-sm-4 invoice-col">
+                    <h5><b>Nombre del Equipo:</b> <?php echo $producto['nombre'] ?></h5>
+                    <br>
+                    <h5><b>Departamento:</b> <?php echo $producto['departamento'] ?></h5>
+
+                </div>
+                <div class="col-sm-4 invoice-col">
+                    <h5><b>Modelo:</b> <?php echo $producto['modelo'] ?></h5>
+                    <br>
+                    <h5> <b>Nombre del Trabajador</b> <?php echo $producto['trabajador'] ?></h5>
+                </div>
+                <div class="col-sm-4 invoice-col">
+
+                    <h5> <b>Marca del Equipo:</b> <?php echo $producto['marca']['nombre'] ?></h5>
+                    <br>
+                    <h5> <b>Fecha:</b> <?php echo $producto['fecha'] ?></h5>
+                </div>
+               
+            </div><br>
+
+        </div>
+    </div>
+</div>
+<script>
+    $('#tablaStocks').DataTable({
+        language: TablaIdioma
+    });
+</script>

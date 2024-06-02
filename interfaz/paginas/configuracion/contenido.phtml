@@ -1,0 +1,194 @@
+<?php if ($_SESSION['usuario']['tipo'] == "administrador") { ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                Base de datos
+            </h2>
+            <div class="card-tools">
+                <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                        <a class="btn btn-success" id="btn_respaldo" onclick="respaldarBD()">
+                            <i class="fa fa-database"></i> Respaldar base de datos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="msg" style="margin:-10px 15px;"></div>
+            <table class="table table-bordered table-hover dataTable dtr-inline" id="tablaUsuarios">
+                <thead>
+                    <tr>
+                        <th>Respaldo</th>
+                        <th class="text-center"><i class="fas fa-bars"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (glob('./respaldo' . '/*') as $archivo) {
+                        if (is_file($archivo)) { ?>
+                            <tr>
+                                <td>
+                                    <?php echo str_replace('./respaldo/', '', $archivo) ?>
+                                </td>
+                                <td class="text-center">
+                                    <a href="<?php echo CargarEnlace(str_replace('./', '', $archivo))?>" class="btn btn-primary" title="Exportar"><i class="fa fa-download"></i></a>
+                                    <button class="btn btn-success" onclick="restaurarBD('<?php echo $archivo ?>')" title="Restaurar"><i class="fa fa-retweet"></i></button>
+                                    <button class="btn btn-danger" onclick="eliminarBD('<?php echo $archivo ?>')" title="Anular"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                    <?php }
+                    } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        $('#tablaUsuarios').DataTable({
+            language: TablaIdioma
+        });
+
+        function respaldarBD() {
+            Swal.fire({
+                title: '¿Estas seguro?',
+                text: "Seguro desea respaldar la base de datos",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'SI'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "<?php echo CargarEnlace('nucleo/ajax/configuracion/respaldar-bd.php') ?>",
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function(dato) {
+                            $("#btn_respaldo").html('Respaldando...');
+                        }
+                    }).done(function(dato) {
+                        if (dato.estado == 200) {
+                            Swal.fire(
+                                dato.mensaje,
+                                'Se ha respaldado con éxito.',
+                                'success'
+                            )
+                            setTimeout(function() {
+                                window.location.href = "<?php echo CargarEnlace('configuracion') ?>";
+                            }, 1000);
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                dato.mensaje,
+                                'error'
+                            )
+                        }
+                    }).fail(function(dato) {
+                        Swal.fire(
+                            'Error',
+                            '😅 Algo salio mal',
+                            'error'
+                        )
+                    });
+                    $("#btn_respaldo").html('<i class="fa fa-database"></i> Respaldar base de datos');
+                }
+            })
+        }
+
+        function eliminarBD(bd_ruta) {
+            Swal.fire({
+                title: '¿Estas seguro?',
+                text: "Seguro desea anular este respaldo",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'SI'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "<?php echo CargarEnlace('nucleo/ajax/configuracion/eliminar-bd.php') ?>?bd_ruta=" + bd_ruta,
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                    }).done(function(dato) {
+                        if (dato.estado == 200) {
+                            Swal.fire(
+                                dato.mensaje,
+                                'Se ha eliminado con éxito.',
+                                'success'
+                            )
+                            setTimeout(function() {
+                                window.location.href = "<?php echo CargarEnlace('configuracion') ?>";
+                            }, 1000);
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                dato.mensaje,
+                                'error'
+                            )
+                        }
+                    }).fail(function(dato) {
+                        Swal.fire(
+                            'Error',
+                            '😅 Algo salio mal',
+                            'error'
+                        )
+                    });
+                }
+            })
+        }
+        function restaurarBD(bd_ruta) {
+            Swal.fire({
+                title: '¿Estas seguro?',
+                text: "Seguro desea restaurar este respaldo",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'SI'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "<?php echo CargarEnlace('nucleo/ajax/configuracion/restaurar-bd.php') ?>?bd_ruta=" + bd_ruta,
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                    }).done(function(dato) {
+                        if (dato.estado == 200) {
+                            Swal.fire(
+                                dato.mensaje,
+                                'Se ha restaurado con éxito.',
+                                'success'
+                            )
+                            setTimeout(function() {
+                                window.location.href = "<?php echo CargarEnlace('configuracion') ?>";
+                            }, 1000);
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                dato.mensaje,
+                                'error'
+                            )
+                        }
+                    }).fail(function(dato) {
+                        Swal.fire(
+                            'Error',
+                            '😅 Algo salio mal',
+                            'error'
+                        )
+                    });
+                }
+            })
+        }
+    </script>
+<?php
+} else {
+    echo CargarPagina('403/contenido');
+} ?>

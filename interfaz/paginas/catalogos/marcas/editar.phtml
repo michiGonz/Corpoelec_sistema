@@ -1,0 +1,68 @@
+<?php if ($_SESSION['usuario']['tipo'] == "administrador") {
+    $marca = Obtener(T_marca, $lfmc['link'][3]);
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                Actualizar marca
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="actualizar" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label for="">Nombre</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                            </div>
+                            <input type="text" name="nombre" value="<?php echo $marca['nombre'] ?>" class="form-control"
+                                placeholder="Nombre" required>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="id" value="<?php echo $marca['id'] ?>">
+                <div class="col-12 text-center">
+                    <button class="btn btn-success" id="btn_edit" type="submit">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            var actualizar = $("#actualizar");
+            actualizar.on("submit", function (e) {
+                e.preventDefault();
+                var formData = new FormData(document.getElementById("actualizar"));
+                $.ajax({
+                    url: "<?php echo CargarEnlace('nucleo/ajax/catalogos/marca-actualizar.php') ?>",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function (dato) {
+                        $("#btn_edit").html('Actualizando...');
+                        actualizar.find('button[type="submit"]').attr('disabled', 'true');
+                    }
+                }).done(function (dato) {
+                    if (dato.estado == 200) {
+                        toastr.success(dato.mensaje);
+                        setTimeout(function () {
+                            window.location.href = '<?php echo CargarEnlace('catalogos/marcas'); ?>';
+                        }, 1000);
+                    } else {
+                        toastr.error(dato.mensaje);
+                    }
+                }).fail(function (dato) {
+                    toastr.error('😅 Algo salio mal');
+                });
+                $("#btn_edit").html('Actualizar');
+                actualizar.find('button[type="submit"]').removeAttr('disabled');
+            });
+        });
+    </script>
+<?php } else {
+    echo CargarPagina('403/contenido');
+} ?>

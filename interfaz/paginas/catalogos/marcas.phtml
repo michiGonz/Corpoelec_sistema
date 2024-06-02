@@ -1,0 +1,109 @@
+<?php if ($_SESSION['usuario']['tipo'] == "administrador") {
+    $marcas = ObtenerTodos(T_marca); ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                marcas
+            </h2>
+            <?php if ($_SESSION['usuario']['tipo'] == 'administrador') { ?>
+                <div class="card-tools">
+                    <ul class="nav nav-pills ml-auto">
+                        <li class="nav-item">
+                            <a class="btn btn-success" href="<?php echo CargarEnlace('catalogos/marcas/nuevo') ?>">
+                                <i class="fas fa-plus-circle"></i> Agregar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            <?php } ?>
+        </div>
+        <div class="card-body">
+            <?php if ($marcas) { ?>
+                <div class="msg" style="margin:-10px 15px;"></div>
+                <table class="table table-bordered table-hover dataTable dtr-inline" id="tablamarcas">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            
+                            <th class="text-center"><i class="fas fa-bars"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($marcas as $marca) { ?>
+                            <tr id="<?php echo $marca['id'] ?>">
+                                <td>
+                                    <?php echo TextoCorto($marca['nombre'], 70) ?>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <?php if ($_SESSION['usuario']['tipo'] == 'administrador') { ?>
+                                        <a class="btn btn-warning"
+                                            href="<?php echo CargarEnlace('catalogos/marcas/editar/' . $marca['id']) ?>"
+                                            title="Editar"><i class="fas fa-edit"></i></a>
+                                        <a id="btn<?php echo $marca['id'] ?>" class="btn btn-danger"
+                                            onclick="eliminar('<?php echo $marca['id'] ?>','<?php echo $marca['nombre'] ?>')"
+                                            title="Anular"><i class="fas fa-trash-alt"></i></a>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            <?php } else { ?>
+                <div>Sin datos</div>
+            <?php } ?>
+        </div>
+    </div>
+    <script>
+    $('#tablamarcas').DataTable({language:TablaIdioma});
+        function eliminar(id, nombre) {
+            Swal.fire({
+                title: '¿Estas seguro?',
+                text: "Seguro desea anular la marca: " + nombre,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'SI'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "<?php echo CargarEnlace('nucleo/ajax/catalogos/marca-eliminar.php') ?>?id=" + id,
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function (dato) {
+                            $("#btn" + id).html('Eliminando');
+                        }
+                    }).done(function (dato) {
+                        if (dato.estado == 200) {
+                            $("#" + id).remove();
+                            Swal.fire(
+                                'Eliminado!',
+                                'Se ha eliminado con éxito.',
+                                'success'
+                            )
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                dato.mensaje,
+                                'error'
+                            )
+                        }
+                    }).fail(function (dato) {
+                        $(".msg").html('');
+                        Swal.fire(
+                            'Error',
+                            '😅 Algo salio mal',
+                            'error'
+                        )
+                    });
+                }
+            })
+        }
+    </script>
+<?php } else {
+    echo CargarPagina('403/contenido');
+} ?>

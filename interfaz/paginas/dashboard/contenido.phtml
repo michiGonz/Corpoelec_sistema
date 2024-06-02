@@ -1,0 +1,71 @@
+<div class="row">
+
+
+    <div class="col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-laptop"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Productos</span>
+                <span class="info-box-number"><?php echo Total(T_PRODUCTO) ?></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning"><i class="fas fa-registered"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">marcas</span>
+                <span class="info-box-number"><?php echo Total(T_marca) ?></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger"><i class="fas fa-users"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Usuarios</span>
+                <span class="info-box-number"><?php echo Total(T_USUARIO) ?></span>
+            </div>
+        </div>
+    </div>
+
+    <body>
+
+        <div class="custom-card">
+            <img src="https://th.bing.com/th/id/OIP.HlUWURpX6qg7u7CucclktwHaFj?rs=1&pid=ImgDetMain" alt="Descripción de la imagen">
+            <div class="card-content">
+                <h3>Corpoelec</h3>
+                <p>La Corporación Eléctrica Nacional, S.A. </p>
+            </div>
+        </div>
+        <div class="custom-card">
+            <img src="https://th.bing.com/th/id/OIP.KS_ubcISjvT6hYdKoWwKqgHaFk?rs=1&pid=ImgDetMain" alt="Descripción de la imagen">
+            <div class="card-content">
+                <h3>Servicio de Calidad</h3>
+                <p>Sistema de Registo</p>
+            </div>
+        </div>
+
+    </body>
+
+
+
+</div>
+
+<style>
+.custom-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.gradient-bg {
+    background-image: linear-gradient(45deg, #ffcc00, #ff6699);
+    color: #ffffff;
+}
+
+</style>

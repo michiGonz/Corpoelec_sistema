@@ -1,0 +1,97 @@
+<?php if ($_SESSION['usuario']['tipo'] == "administrador") {
+    $usuario = Obtener(T_USUARIO,$lfmc['link'][3]);
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                Actualizar usuario
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="actualizar" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="">Nombre de usuario</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@</span>
+                            </div>
+                            <input type="text" name="usuario" value="<?php echo $usuario['usuario'] ?>" class="form-control"
+                                placeholder="Nombre de usuario" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="">Nombre</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" name="nombre" value="<?php echo $usuario['nombre'] ?>" class="form-control"
+                                placeholder="Nombre" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Tipo</label>
+                        <select class="form-control" style="width: 100%;" name="tipo" required>
+                            <option value="administrador" <?php echo ($usuario['tipo'] == "administrador") ? "selected" : "" ?>>Administrador</option>
+                            <option value="vendedor" <?php echo ($usuario['tipo'] == "vendedor") ? "selected" : "" ?>>Vendedor
+                            </option>
+                            <option value="almacenista" <?php echo ($usuario['tipo'] == "almacenista") ? "selected" : "" ?>>
+                                Almacenista</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="">Contraseña <small>ingresar para modificar</small></label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            </div>
+                            <input type="text" name="clave" class="form-control" placeholder="Contraseña">
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="id" value="<?php echo $usuario['id'] ?>">
+                <div class="col-12 text-center">
+                    <button class="btn btn-success" id="btn_edit" type="submit">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            var actualizar = $("#actualizar");
+            actualizar.on("submit", function (e) {
+                e.preventDefault();
+                var formData = new FormData(document.getElementById("actualizar"));
+                $.ajax({
+                    url: "<?php echo CargarEnlace('nucleo/ajax/usuario/actualizar.php') ?>",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function (dato) {
+                        $("#btn_edit").html('Actualizando...');
+                        actualizar.find('button[type="submit"]').attr('disabled', 'true');
+                    }
+                }).done(function (dato) {
+                    if (dato.estado == 200) {
+                        toastr.success(dato.mensaje);
+                        setTimeout(function () {
+                            window.location.href = '<?php echo CargarEnlace('configuracion/usuarios'); ?>';
+                        }, 1000);
+                    } else {
+                        toastr.error(dato.mensaje);
+                    }
+                }).fail(function (dato) {
+                    toastr.error('😅 Algo salio mal');
+                });
+                $("#btn_edit").html('Actualizar');
+                actualizar.find('button[type="submit"]').removeAttr('disabled');
+            });
+        });
+    </script>
+<?php } else {
+    echo CargarPagina('403/contenido');
+} ?>
